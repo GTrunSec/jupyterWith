@@ -9,6 +9,8 @@
 , llvm
 , cppzmq
 , openssl
+, glibc
+, makeWrapper
 }:
 let
   xtl = stdenv.mkDerivation {
@@ -130,13 +132,18 @@ let
 
     buildInputs = [ cmake zeromq
                     cppzmq
-                    xeus libuuid xtl pkgconfig cling pugixml cxxopts nlohmannJson llvm openssl ];
+                    xeus libuuid xtl pkgconfig cling pugixml cxxopts nlohmannJson llvm openssl makeWrapper ];
 
     cmakeFlags = [
       "-DCMAKE_BUILD_TYPE=Release"
       "-DCMAKE_INSTALL_PREFIX=$out"
       "-DLLVM_BINARY_DIR=${cling}"
     ];
+
+    postFixup = ''
+    wrapProgram $out/bin/xcpp \
+    --add-flags "-I ${glibc.dev}/include"
+      '';
   };
 in
 xeusCling

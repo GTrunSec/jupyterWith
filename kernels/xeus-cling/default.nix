@@ -27,12 +27,12 @@
 
 let
   cling = import ./cling.nix {inherit stdenv fetchurl python wget fetchFromGitHub libffi cacert git cmake llvm ncurses zlib fetchgit glibc makeWrapper;};
-  xeusCling = import ./xeusCling.nix {inherit stdenv fetchFromGitHub cmake zeromq pkgconfig libuuid cling pugixml llvm cppzmq openssl;};
+  xeusCling = import ./xeusCling.nix {inherit stdenv fetchFromGitHub cmake zeromq pkgconfig libuuid cling pugixml llvm cppzmq openssl glibc makeWrapper;};
 
   xeusClingSh = writeScriptBin "xeusCling" ''
     #! ${stdenv.shell}
     export PATH="${stdenv.lib.makeBinPath ([ xeusCling ])}:$PATH"
-    ${xeusCling}/bin/xcpp -I ${glibc.dev}/include -I ${cling}/lib/clang/5.0.0/include "$@"'';
+    ${xeusCling}/bin/xcpp "$@"'';
 
   kernelFile = {
     display_name = "C++ - " + name;
@@ -60,5 +60,7 @@ let
 in
   {
     spec = xeusClingKernel;
-    runtimePackages = [];
+    runtimePackages = [
+      xeusClingSh
+    ];
   }
