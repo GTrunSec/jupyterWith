@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, python, wget, fetchFromGitHub, libffi, cacert, git, cmake, llvm, ncurses, zlib, fetchgit }:
+{ stdenv, fetchurl, python, wget, fetchFromGitHub, libffi, cacert, git, cmake, llvm, ncurses, zlib, fetchgit, glibc, makeWrapper }:
 
 stdenv.mkDerivation rec {
   name = "cling";
@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
     fi
   '';
 
-  buildInputs = [python wget cacert git cmake llvm libffi];
+  buildInputs = [python wget cacert git cmake llvm libffi makeWrapper ];
   propagatedBuildInputs = [ ncurses zlib ];
   configurePhase = "true";
 
@@ -49,4 +49,9 @@ stdenv.mkDerivation rec {
     cmake --build . --config Release --target cling -j $NIX_BUILD_CORES
     cmake --build . --target install
   '';
+
+  postFixup = ''
+    wrapProgram $out/bin/cling \
+    --add-flags "-I ${glibc.dev}/include"
+      '';
 }

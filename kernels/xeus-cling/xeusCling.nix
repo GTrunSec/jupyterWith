@@ -132,13 +132,11 @@ let
                     cppzmq
                     xeus libuuid xtl pkgconfig cling pugixml cxxopts nlohmannJson llvm openssl ];
 
-    configurePhase = ''
-        echo "=======> CHECK RTTI"
-        llvm-config --has-rtti
-        mkdir build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$out ..
-        '';
+    cmakeFlags = [
+      "-DCMAKE_BUILD_TYPE=Release"
+      "-DCMAKE_INSTALL_PREFIX=$out"
+      "-DLLVM_BINARY_DIR=${cling}"
+    ];
   };
 in
 xeusCling
