@@ -20,6 +20,7 @@
 , fetchgit
 , glibc
 , makeWrapper
+, cryptopp
 , extraFlag ? "c++17"
 , name ? "nixpkgs"
 , packages ? (_:[])
@@ -27,7 +28,7 @@
 
 let
   cling = import ./cling.nix {inherit stdenv fetchurl python wget fetchFromGitHub libffi cacert git cmake llvm ncurses zlib fetchgit glibc makeWrapper;};
-  xeusCling = import ./xeusCling.nix {inherit stdenv fetchFromGitHub cmake zeromq pkgconfig libuuid cling pugixml llvm cppzmq openssl glibc makeWrapper;};
+  xeusCling = import ./xeusCling.nix {inherit stdenv fetchFromGitHub cmake zeromq pkgconfig libuuid cling pugixml llvm cppzmq openssl glibc makeWrapper cryptopp;};
 
   xeusClingSh = writeScriptBin "xeusCling" ''
     #! ${stdenv.shell}
