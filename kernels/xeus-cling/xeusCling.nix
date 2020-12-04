@@ -142,7 +142,7 @@ let
 
     postFixup = ''
     wrapProgram $out/bin/xcpp \
-    --add-flags "-I ${glibc.dev}/include"
+    --add-flags "-idirafter ${glibc.dev}/include"
       '';
   };
 in
