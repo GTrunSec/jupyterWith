@@ -9,6 +9,8 @@
 , git
 , cmake
 , llvm
+, cppzmq
+, openssl
 , ncurses
 , zlib
 , zeromq
@@ -22,7 +24,7 @@
 
 let
   cling = import ./cling.nix {inherit stdenv fetchurl python wget fetchFromGitHub libffi cacert git cmake llvm ncurses zlib fetchgit;};
-  xeusCling = import ./xeusCling.nix {inherit stdenv fetchFromGitHub cmake zeromq pkgconfig libuuid cling pugixml;};
+  xeusCling = import ./xeusCling.nix {inherit stdenv fetchFromGitHub cmake zeromq pkgconfig libuuid cling pugixml llvm cppzmq openssl;};
 
   xeusClingSh = writeScriptBin "xeusCling" ''
     #! ${stdenv.shell}
@@ -31,12 +33,12 @@ let
 
   kernelFile = {
     display_name = "C++ - " + name;
-    language = "C++11";
+    language = "C++17";
     argv = [
       "${xeusClingSh}/bin/xeusCling"
       "-f"
       "{connection_file}"
-      "-std=c++11"
+      "-std=c++17"
       ];
     logo64 = "logo-64x64.svg";
   };
