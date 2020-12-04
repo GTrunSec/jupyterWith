@@ -92,7 +92,12 @@ let
 
     postFixup = ''
     wrapProgram $out/bin/xcpp \
-    --add-flags "-idirafter ${glibc.dev}/include"
+    --add-flags "-idirafter ${glibc.dev}/include" \
+    --add-flags "-idirafter ${nlohmannJson}/include" \
+    --add-flags "-idirafter ${xtl}/include" \
+    --add-flags "-idirafter ${cling}/include" \
+    --add-flags "-idirafter ${cxxopts}/include" \
+    --add-flags "-idirafter ${llvm}/include"
       '';
   };
 in
