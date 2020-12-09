@@ -11,8 +11,8 @@ python3Packages.buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "GTrunSec";
     repo = "nix-kernel";
-    rev = "dfa42d0812d508ded99f690ee1a83281d900a3ec";
-    sha256 = "1lf4rbbxjmq9h6g3wrdzx3v3dn1bndfmiybxiy0sjavgb6lzc8kq";
+    rev = "7f27018ac738b38d0e910172b2c6948919928398";
+    sha256 = "sha256-vDXBHqiihdkAdzv32l1BE+Rnx1LftPv4rcEZrbk6eU4=";
   };
   doCheck = false;
   preBuild = ''
