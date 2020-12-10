@@ -47,4 +47,5 @@ in
       # Lets the user to use libraries from the Python command.
       pythonBin
     ];
+    inherit kernelEnv;
   }
