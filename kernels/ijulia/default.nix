@@ -1,6 +1,7 @@
 { pkgs
 , stdenv
 , name ? "nixpkgs"
+, extraEnv ? ""
 , packages ? (_:[])
 , extraPackages ? (_:[])
 , writeScriptBin
@@ -82,12 +83,12 @@ let
 
     logo64 = "logo-64x64.png";
 
-    env =   {
+    env = {
       LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath extraLibs}";
       JULIA_DEPOT_PATH = "${directory}";
       JULIA_PKGDIR = "${directory}";
       JULIA_NUM_THREADS= "${toString NUM_THREADS}";
-    };
+    } // extraEnv;
   };
 
   Install_JuliaCUDA = writeScriptBin "Install_Julia_CUDA" ''
