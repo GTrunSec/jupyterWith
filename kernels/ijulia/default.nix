@@ -11,6 +11,7 @@
 , cuda ? false
 , cudaVersion ? ""
 , nvidiaVersion ? ""
+, juliaPatchFlags ? []
 }:
 
 let
@@ -22,6 +23,8 @@ let
     # GZip.jl # Required by DataFrames.jl
     gzip    
     zlib
+    gcc9
+    stdenv.cc.cc.lib
   ] ++ (extraPackages  pkgs) ++ pkgs.lib.optionals cuda
     [
       cudaVersion
@@ -67,6 +70,9 @@ let
          ''
         }
     '';
+     postFixup = ''
+     ${pkgs.lib.concatStringsSep " " juliaPatchFlags}
+     '';
   };
 
   kernelFile = {
