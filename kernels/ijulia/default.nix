@@ -1,9 +1,9 @@
 { pkgs
 , stdenv
 , name ? "nixpkgs"
-, extraEnv ? ""
-, packages ? (_:[])
-, extraPackages ? (_:[])
+, extraEnv ? { }
+, packages ? (_: [ ])
+, extraPackages ? (_: [ ])
 , writeScriptBin
 , runCommand
 , directory
@@ -11,9 +11,8 @@
 , cuda ? false
 , cudaVersion ? ""
 , nvidiaVersion ? ""
-, juliaPatchFlags ? []
+, juliaPatchFlags ? [ ]
 }:
-
 let
   extraLibs = with pkgs;[
     mbedtls
@@ -21,22 +20,37 @@ let
     # ImageMagick.jl
     imagemagickBig
     # GZip.jl # Required by DataFrames.jl
-    gzip    
+    gzip
     zlib
     gcc9
     stdenv.cc.cc.lib
-  ] ++ (extraPackages  pkgs) ++ pkgs.lib.optionals cuda
+  ] ++ (extraPackages pkgs) ++ pkgs.lib.optionals cuda
     [
       cudaVersion
       # Flux.jl
       libGLU
-		  xorg.libXi xorg.libXmu freeglut
-      xorg.libXext xorg.libX11 xorg.libXv xorg.libXrandr zlib
-		  ncurses5
-		  stdenv.cc
-		  binutils
-      git gitRepo gnupg autoconf curl      
-      procps gnumake utillinux m4 gperf unzip
+      xorg.libXi
+      xorg.libXmu
+      freeglut
+      xorg.libXext
+      xorg.libX11
+      xorg.libXv
+      xorg.libXrandr
+      zlib
+      ncurses5
+      stdenv.cc
+      binutils
+      git
+      gitRepo
+      gnupg
+      autoconf
+      curl
+      procps
+      gnumake
+      utillinux
+      m4
+      gperf
+      unzip
     ];
 
   julia_wrapped = pkgs.stdenv.mkDerivation rec {
@@ -70,9 +84,9 @@ let
          ''
         }
     '';
-     postFixup = ''
-     ${pkgs.lib.concatStringsSep " " juliaPatchFlags}
-     '';
+    postFixup = ''
+      ${pkgs.lib.concatStringsSep " " juliaPatchFlags}
+    '';
   };
 
   kernelFile = {
@@ -93,25 +107,25 @@ let
       LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath extraLibs}";
       JULIA_DEPOT_PATH = "${directory}";
       JULIA_PKGDIR = "${directory}";
-      JULIA_NUM_THREADS= "${toString NUM_THREADS}";
+      JULIA_NUM_THREADS = "${toString NUM_THREADS}";
     } // extraEnv;
   };
 
   Install_JuliaCUDA = writeScriptBin "Install_Julia_CUDA" ''
-  ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.add(["CUDAdrv", "CUDAnative", "CuArrays"]); using CUDAdrv, CUDAnative, CuArrays' \
-    && ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.test("CUDAnative");'
-  get_nvdisasm=$(dirname ${directory}/artifacts/*/bin/nvdisasm)
-  rm -rf $get_nvdisasm/nvdisasm
-  ln -s ${cudaVersion}/bin/nvdisasm  $get_nvdisasm/nvdisasm
+    ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.add(["CUDAdrv", "CUDAnative", "CuArrays"]); using CUDAdrv, CUDAnative, CuArrays' \
+      && ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.test("CUDAnative");'
+    get_nvdisasm=$(dirname ${directory}/artifacts/*/bin/nvdisasm)
+    rm -rf $get_nvdisasm/nvdisasm
+    ln -s ${cudaVersion}/bin/nvdisasm  $get_nvdisasm/nvdisasm
   '';
 
   InstalliJulia = writeScriptBin "Install_iJulia" ''
-     ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
-     ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg;  Pkg.pin(PackageSpec(name="IJulia", version="1.21.4"))'
-     ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.add("MbedTLS")'
-     ## specific a MbedTLS version that fixes the MbedTls(Nix) can not load library
-     ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.pin(PackageSpec(name="MbedTLS", version="0.7.0")); using MbedTLS; using IJulia'
-'';
+    ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.update(); Pkg.add("IJulia")'
+    ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg;  Pkg.pin(PackageSpec(name="IJulia", version="1.21.4"))'
+    ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.add("MbedTLS")'
+    ## specific a MbedTLS version that fixes the MbedTls(Nix) can not load library
+    ${julia_wrapped}/bin/julia_wrapped -e 'using Pkg; Pkg.pin(PackageSpec(name="MbedTLS", version="0.7.0")); using MbedTLS; using IJulia'
+  '';
 
   JuliaKernel = stdenv.mkDerivation {
     name = "Julia-${name}";
