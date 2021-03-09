@@ -31,7 +31,6 @@ let
     logo64 = "logo-64x64.png";
 
     env = {
-      JULIA_DEPOT_PATH = "${directory}";
       JULIA_PKGDIR = "${directory}";
     } // extraEnv;
   };
