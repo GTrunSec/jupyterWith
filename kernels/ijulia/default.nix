@@ -15,7 +15,7 @@ let
     display_name = "Julia - ${name}";
     language = "julia";
     argv = [
-      "${julia_wrapped}/bin/julia_wrapped"
+      "${julia_wrapped}/bin/julia"
       "-i"
       "--startup-file=yes"
       "--color=yes"
