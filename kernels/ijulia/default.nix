@@ -5,17 +5,22 @@
 , packages ? (_: [ ])
 , extraPackages ? (_: [ ])
 , writeScriptBin
-, runCommand
 , directory
 , julia_wrapped
 , activateDir ? ""
 }:
 let
+  startupFile = pkgs.writeText "startup.jl" ''
+    import Pkg
+    Pkg.activate("${activateDir}")
+  '';
   kernelFile = {
     display_name = "Julia - ${name}";
     language = "julia";
     argv = [
       "${julia_wrapped}/bin/julia"
+      "-L"
+      "${startupFile}"
       "-i"
       "--startup-file=yes"
       "--color=yes"
