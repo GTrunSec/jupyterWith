@@ -5,19 +5,17 @@
 , customIHaskell ? null
 , extraIHaskellFlags ? ""
 , name ? "nixpkgs"
-, packages ? (_:[])
-, r-libs-site ? null
-, r-bin-path ? null
+, packages ? (_: [ ])
+, extraEnv ? ""
 }:
-
 let
-  # By default we use the ihaskell included in the `haskellPackages` set, but you can 
+  # By default we use the ihaskell included in the `haskellPackages` set, but you can
   # also specify one explicitely in case the ihaskell you want to use resides somewhere
   # else. Note that you will likely need an ihaskell which was built using the same
   # ghc as the one used by `haskellPackages`.
   ihaskell = if customIHaskell == null then haskellPackages.ihaskell else customIHaskell;
 
-  ghcEnv = haskellPackages.ghcWithPackages (self: [ihaskell] ++ packages self);
+  ghcEnv = haskellPackages.ghcWithPackages (self: [ ihaskell ] ++ packages self);
 
   ghciBin = writeScriptBin "ghci-${name}" ''
     ${ghcEnv}/bin/ghci "$@"
@@ -30,9 +28,8 @@ let
   ihaskellSh = writeScriptBin "ihaskell" ''
     #! ${stdenv.shell}
     export GHC_PACKAGE_PATH="$(echo ${ghcEnv}/lib/*/package.conf.d| tr ' ' ':'):$GHC_PACKAGE_PATH"
-    export LD_LIBRARY_PATH=${R}/lib/R/lib
-    export R_LIBS_SITE=${builtins.readFile r-libs-site}
-    export PATH="${stdenv.lib.makeBinPath ([ ghcEnv r-bin-path ])}:$PATH"
+    ${extraEnv}
+    export PATH="${stdenv.lib.makeBinPath ([ ghcEnv ])}:$PATH"
     ${ihaskell}/bin/ihaskell ${extraIHaskellFlags} -l $(${ghcEnv}/bin/ghc --print-libdir) "$@"'';
 
   kernelFile = {
@@ -62,12 +59,12 @@ let
     '';
   };
 in
-  {
-    spec = ihaskellKernel;
-    runtimePackages = [
-      # Give access to compiler and interpreter with the libraries accessible
-      # from the kernel.
-      ghcBin
-      ghciBin
-    ];
-  }
+{
+  spec = ihaskellKernel;
+  runtimePackages = [
+    # Give access to compiler and interpreter with the libraries accessible
+    # from the kernel.
+    ghcBin
+    ghciBin
+  ];
+}
