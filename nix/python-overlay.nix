@@ -2,6 +2,17 @@ _: pkgs:
 let
   packageOverrides = selfPythonPackages: pythonPackages: {
 
+    notebook = (if pkgs.stdenv.isDarwin then
+      pythonPackages.notebook.overridePythonAttrs
+        (_: {
+          preConfigure = ''
+            rm -rf notebook/services/contents/filemanager.py
+            cp ${./notebook-darwin-fix.py} notebook/services/contents/filemanager.py
+          '';
+        }) else
+      pythonPackages.notebook.overrideAttrs (_: { }));
+
+
     jupyterlab = pythonPackages.jupyterlab.overridePythonAttrs (_: {
       doCheck = false;
     });
