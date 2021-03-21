@@ -2,10 +2,12 @@
 , haskellPackages
 , stdenv
 , lib
+, R
 , customIHaskell ? null
 , extraIHaskellFlags ? ""
 , name ? "nixpkgs"
 , packages ? (_: [ ])
+, extraEnv ? ""
 }:
 let
   # By default we use the ihaskell included in the `haskellPackages` set, but you can
@@ -27,6 +29,7 @@ let
   ihaskellSh = writeScriptBin "ihaskell" ''
     #! ${stdenv.shell}
     export GHC_PACKAGE_PATH="$(echo ${ghcEnv}/lib/*/package.conf.d| tr ' ' ':'):$GHC_PACKAGE_PATH"
+    ${extraEnv}
     export PATH="${lib.makeBinPath ([ ghcEnv ])}:$PATH"
     ${ihaskell}/bin/ihaskell ${extraIHaskellFlags} -l $(${ghcEnv}/bin/ghc --print-libdir) "$@"'';
 
